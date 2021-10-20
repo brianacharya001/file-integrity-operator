@@ -60,30 +60,6 @@ spec:
         apiVersion: policy.open-cluster-management.io/v1
         kind: ConfigurationPolicy
         metadata:
-          name: fileintegrity-operator-catalog-source
-        spec:
-          object-templates:
-            - complianceType: musthave
-              objectDefinition:
-                apiVersion: operators.coreos.com/v1alpha1
-                kind: CatalogSource
-                metadata:
-                  name: file-integrity-operator
-                  namespace: openshift-marketplace
-                spec:
-                  displayName: File Integrity Operator
-                  image: quay.io/file-integrity-operator/file-integrity-operator-index:latest
-                  publisher: github.com/openshift/file-integrity-operator
-                  sourceType: grpc
-                  updateStrategy:
-                    registryPoll:
-                      interval: 45m
-          remediationAction: inform
-          severity: high
-    - objectDefinition:
-        apiVersion: policy.open-cluster-management.io/v1
-        kind: ConfigurationPolicy
-        metadata:
           name: fileintegrity-operator-group
         spec:
           object-templates:
@@ -94,6 +70,9 @@ spec:
                 metadata:
                   name: file-integrity-operator
                   namespace: openshift-file-integrity
+                spec:
+                  targetNamespaces:
+                  - openshift-file-integrity
           remediationAction: inform
           severity: high
     - objectDefinition:
@@ -111,7 +90,7 @@ spec:
                   name: file-integrity-operator
                   namespace: openshift-file-integrity
                 spec:
-                  channel: release-0.1
+                  channel: "release-0.1"
                   installPlanApproval: Automatic
                   name: file-integrity-operator
                   source: redhat-operators
@@ -130,21 +109,12 @@ spec:
                 apiVersion: fileintegrity.openshift.io/v1alpha1
                 kind: FileIntegrity
                 metadata:
-                  labels:
-                    app: frontend
-                  name: example-fileintegrity
+                  name: worker-fileintegrity
                   namespace: openshift-file-integrity
                 spec:
-                  config:
-                    gracePeriod: 900
-                    key: config
-                    name: myconfig
-                    namespace: openshift-file-integrity
-                  debug: true
-                  tolerations:
-                    - effect: NoSchedule
-                      key: node-role.kubernetes.io/master
-                      operator: Exists
+                  nodeSelector:
+                    node-role.kubernetes.io/worker: ""
+                  config: {}
           remediationAction: inform
           severity: high
   remediationAction: enforce
